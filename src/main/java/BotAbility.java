@@ -1,64 +1,64 @@
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
-import org.telegram.abilitybots.api.objects.Ability;
-import org.telegram.abilitybots.api.objects.Locality;
-import org.telegram.abilitybots.api.objects.Privacy;
+import org.telegram.abilitybots.api.objects.*;
+import org.telegram.abilitybots.api.sender.SilentSender;
+import org.telegram.abilitybots.api.util.AbilityExtension;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import java.util.Arrays;
+import java.util.Map;
+import static org.telegram.abilitybots.api.util.AbilityUtils.stripTag;
 
-import java.util.List;
-
-public class BotAbility extends AbilityBot {
-
-// public BotAbility(DefaultBotOptions botOptions) {
-//super(botOptions);
-// }
-
-    private static final String BOT_USERNAME="Unicpobot";
-    private static String BOT_TOKEN = System.getenv("BOT_TOKEN");
-
-    BotAbility(DefaultBotOptions botOptions) {
-        super(BOT_TOKEN, BOT_USERNAME, botOptions);
+public class BotAbility implements AbilityExtension {
+    private SilentSender silent;
+    private DBContext db;
+    private User user;
+    BotAbility(SilentSender silent, DBContext db) {
+        this.silent = silent;
+        this.db = db;
     }
 
-    @Override
-    public int creatorId() {
-        return 0;
-    }
-    public Ability sayHelloWorld() {
-        return Ability
-                .builder()
-                .name("hello")
-                .info("says hello world")
-                .input(0)
-                .locality(Locality.ALL)
-                .privacy(Privacy.PUBLIC)
-                .action(ctx -> silent.send("Hello!",ctx.chatId()))
-                .post(ctx->silent.send("bye world",ctx.chatId()))
-                .build();
-
-    }
-    public Ability Botsay() {
-        return Ability
-                .builder()
-                .name("bot")
-                .info("says hello world")
-                .input(0)
-                .locality(Locality.ALL)
-                .privacy(Privacy.PUBLIC)
-                .action(ctx -> silent.execute(new SendMessage()))//"Bot Ability!",ctx.chatId()))
-                .post(ctx->silent.send("I'm a bot",ctx.chatId()))
-                .build();
-
-    }
-    @Override
-    public String getBotUsername() {
-        return BOT_USERNAME;
+    public BotAbility(DefaultBotOptions botOptions) {
     }
 
-    @Override
-    public String getBotToken() {
-        return  System.getenv("BOT_TOKEN");
+    public Reply AddPhoto() {
+        return Reply.of(update -> {
+            long chatId = update.getMessage().getChatId();
+            long userId = user.getId();
+            Stat stat = new Stat(db, chatId, userId);
+            stat.newPhoto();
+            },
+                Flag.PHOTO);
     }
-}
+   public Reply AddMessage() {
+        return Reply.of(update -> {
+            long chatId = update.getMessage().getChatId();
+            long userId = user.getId();
+            Stat stat = new Stat(db, chatId, userId);
+            stat.newMess();
+            },
+                Flag.TEXT);
+    }
+    public Reply AddAnswer() {
+        return Reply.of(update -> {
+            long chatId = update.getMessage().getChatId();
+            long userId = user.getId();
+            Stat stat = new Stat(db, chatId, userId);
+            stat.newReply();
+            },
+                Flag.REPLY);
+    }
+    public Reply OutStat() {
+        return Reply.of(update -> {
+            long chatId = update.getMessage().getChatId();
+            long userId = user.getId();
+            Stat stat = new Stat(db, chatId, userId);
+            silent.send(stat.get(), update.getMessage().getChatId());
+            },
+                update -> update.getMessage().getText().equals("statistic"));
+    }
+  }

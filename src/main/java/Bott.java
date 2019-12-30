@@ -1,3 +1,7 @@
+import com.google.inject.spi.StaticInjectionRequest;
+import org.telegram.abilitybots.api.bot.AbilityBot;
+import org.telegram.abilitybots.api.sender.SilentSender;
+import org.telegram.abilitybots.api.util.AbilityExtension;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -13,25 +17,25 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bott extends TelegramLongPollingBot {
+public class Bott extends AbilityBot {
 
 
     private static final String BOT_USERNAME = "Unicpobot";
-    private final String BOT_TOKEN = System.getenv("BOT_TOKEN");
-    public Bott(DefaultBotOptions botOptions) {
-        super(botOptions);
+    private static final String TOKEN = System.getenv("BOT_TOKEN");
+
+   Bott(DefaultBotOptions botOptions){
+       super(BOT_USERNAME,TOKEN,botOptions);
+   }
+
+
+    public AbilityExtension ability() {
+        return new BotAbility(silent, db);
     }
 
-    public void onUpdateReceived(Update update){
-        Message message=update.getMessage();
-        SendMessage sendMessage=new SendMessage(message.getChatId(),message.getText());
-        try {
-            execute(sendMessage);
-        }catch (TelegramApiException e){
-            e.printStackTrace();
-        }
+    @Override
+    public int creatorId() {
+        return 0;
     }
-
     @Override
     public String getBotUsername() {
         return BOT_USERNAME;
