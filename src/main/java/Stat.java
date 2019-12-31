@@ -124,10 +124,10 @@ public class Stat {
         for (int i : statMap.keySet()) {
             if (statMap.get(i)[0] == (userId)) {
                 a = "Всего у " +user+":\n"+
-                        statMap.get(i)[1] + "сообщений\n" +
-                        statMap.get(i)[2] + "фото\n" +
-                        statMap.get(i)[3] + "ответов\n"+
-                        statMap.get(i)[4]+"документов\n";
+                        statMap.get(i)[1] + " сообщений\n" +
+                        statMap.get(i)[2] + " фото\n" +
+                        statMap.get(i)[3] + " ответов\n"+
+                        statMap.get(i)[4]+" документов\n";
             }
         }
         return a;
@@ -145,10 +145,10 @@ public class Stat {
             reply += statMap.get(i)[3];
             doc += statMap.get(i)[4];
         }
-        a = "Всего:\n" + mess + "сообщений\n"
-                + photo + "фото\n"
-                + reply + "ответов\n"
-                + doc + "документов\n";
+        a = "Всего:\n" + mess + " сообщений\n"
+                + photo + " фото\n"
+                + reply + " ответов\n"
+                + doc + " документов\n";
         return a;
     }
 
@@ -157,4 +157,5 @@ public class Stat {
             statMap.remove(i);
         }
     }
-}
+
+    }
